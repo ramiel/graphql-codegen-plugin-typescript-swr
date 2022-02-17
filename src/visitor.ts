@@ -57,12 +57,36 @@ const composeQueryHandler = (
 
   codes.push(`use${pascalName}(${
     config.autogenKey ? '' : 'key: SWRKeyInterface, '
-  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}, ClientError>) {
-  return useSWR<${responseType}, ClientError>(${
+  }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}, ClientError> & AdditionalOpts) {
+    const { skip = false, customKey, ...otherConfig } = config || {};
+    const [key, setKey] = useState<SWRKeyInterface>(null);
+    const result = useSWR<${responseType}, ClientError>(${
     config.autogenKey
-      ? `genKey<${variablesType}>('${pascalName}', variables)`
+      ? `customKey
+      ? key
+      : skip
+      ? null
+      : genKey<${variablesType}>('${pascalName}', variables)`
       : 'key'
-  }, () => sdk.${name}(variables), config);
+  }, () => sdk.${name}(variables), otherConfig);
+
+  const loading = useMemo(() => !skip && !result.data && !result.error, [
+    result.data,
+    result.error,
+    skip,
+  ]);
+
+  useEffect(() => {
+    if (customKey && !skip) {
+      setKey(customKey(genKey<${variablesType}>('${pascalName}', variables)));
+    }
+  }, [customKey, skip, variables]);
+
+  return {
+    ...result,
+    loading,
+  };
+
 }`)
 
   if (config.infinite) {
@@ -114,6 +138,10 @@ export class SWRVisitor extends ClientSideBaseVisitor<
 
     this._additionalImports.push(
       `${typeImport} { ClientError } from 'graphql-request/dist/types';`
+    )
+
+    this._additionalImports.push(
+      `import { useEffect, useMemo, useState } from 'react';`
     )
 
     if (this.config.useTypeImports) {
@@ -212,8 +240,14 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     }
 
     // Add getSdkWithHooks function
-    codes.push(`export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  const sdk = getSdk(client, withWrapper);`)
+    codes.push(`export interface AdditionalOpts {
+      customKey?: (generatedName: SWRKeyInterface) => SWRKeyInterface;
+      skip?: boolean;
+    }
+  export function getSdkWithHooks(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  const sdk = getSdk(client, withWrapper);
+  
+  `)
 
     // Add the utility for useSWRInfinite
     if (this._enabledInfinite) {
