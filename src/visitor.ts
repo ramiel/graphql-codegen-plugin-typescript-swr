@@ -58,7 +58,7 @@ const composeQueryHandler = (
   codes.push(`use${pascalName}(${
     config.autogenKey ? '' : 'key: SWRKeyInterface, '
   }variables${optionalVariables}: ${variablesType}, config?: SWRConfigInterface<${responseType}, ClientError> & AdditionalOpts) {
-    const { skip = false, customKey } = config || {};
+    const { skip = false, customKey, ...otherConfig } = config || {};
     const [key, setKey] = useState<SWRKeyInterface>(null);
     const result = useSWR<${responseType}, ClientError>(${
     config.autogenKey
@@ -68,7 +68,7 @@ const composeQueryHandler = (
       ? null
       : genKey<${variablesType}>('${pascalName}', variables),`
       : 'key'
-  }, () => sdk.${name}(variables), config);
+  }, () => sdk.${name}(variables), otherConfig);
 
   const loading = useMemo(() => !skip && !result.data && !result.error, [
     result.data,
