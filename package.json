@@ -1,5 +1,5 @@
 {
-  "name": "graphql-codegen-plugin-typescript-swr",
+  "name": "graphql-codegen-plugin-typescript-swr-ramiel",
   "version": "0.7.2",
   "description": "A GraphQL code generator plug-in that automatically generates utility functions for SWR.",
   "main": "build/main/index.js",
@@ -30,7 +30,8 @@
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:integrate": "jest --no-watchman",
-    "watch:build": "tsc -p tsconfig.json -w"
+    "watch:build": "tsc -p tsconfig.json -w",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "graphql": "^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 <16.0.0"
