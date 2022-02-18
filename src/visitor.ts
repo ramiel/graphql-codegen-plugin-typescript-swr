@@ -66,7 +66,7 @@ const composeQueryHandler = (
       ? key
       : skip
       ? null
-      : genKey<${variablesType}>('${pascalName}', variables),`
+      : genKey<${variablesType}>('${pascalName}', variables)`
       : 'key'
   }, () => sdk.${name}(variables), otherConfig);
 
