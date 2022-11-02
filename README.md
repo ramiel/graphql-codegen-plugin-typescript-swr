@@ -9,7 +9,11 @@ for these features to be available in the original package in any form. This is 
 
 `npm install graphql-codegen-plugin-typescript-swr-ramiel`
 
-What can you do?
+## Known bugs
+
+`autogenSWRKey: false` is not supported. At the moment you always have to pass `true`
+
+# New features
 
 ## Skip queries
 
@@ -66,5 +70,31 @@ Loading state is now part of the result.
 ```ts
 const { loading, data, error } = sdk.useMyQuery({
   eventId: eventId as string,
+})
+```
+
+## Prebound key generator
+
+You can generate a new key with a different set of variables. This is useful when you need to
+prefetch data
+
+```ts
+import { mutate } from 'swr'
+
+const { loading, data, error, genKey } = sdk.useMyQuery({
+  page: 1,
+})
+
+useEffect(() => {
+  mutate(
+    // genKey is typesafe and let you generate a new key including the name of the query, without the need
+    // of specifing it
+    genKey({ page: 2 }),
+    prefetchedData,
+    {
+      revalidate: false,
+      populateCache: true,
+    }
+  )
 })
 ```
