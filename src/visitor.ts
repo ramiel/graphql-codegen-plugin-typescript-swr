@@ -82,9 +82,26 @@ const composeQueryHandler = (
     }
   }, [customKey, skip, variables]);
 
+  const _genKey = useCallback(
+    (variables: ${variablesType}) =>
+      customKey
+        ? customKey(
+            genKey<${variablesType}>(
+              '${pascalName}',
+              variables,
+            ),
+          )
+        : genKey<${variablesType}>(
+            '${pascalName}',
+            variables,
+          ),
+    [customKey],
+  );
+
   return {
     ...result,
     loading,
+    genKey: _genKey
   };
 
 }`)
@@ -141,7 +158,7 @@ export class SWRVisitor extends ClientSideBaseVisitor<
     )
 
     this._additionalImports.push(
-      `import { useEffect, useMemo, useState } from 'react';`
+      `import { useEffect, useMemo, useState, useCallback } from 'react';`
     )
 
     if (this.config.useTypeImports) {
