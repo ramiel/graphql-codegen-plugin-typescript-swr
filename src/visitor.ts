@@ -239,6 +239,13 @@ export class SWRVisitor extends ClientSideBaseVisitor<
 ) => [keyof Variables, Variables[keyof Variables] | null] | null;`)
     }
 
+    // Add the function for auto-generation key for SWR
+    if (config.autogenSWRKey) {
+      codes.push(
+        `export const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];`
+      )
+    }
+
     // Add getSdkWithHooks function
     codes.push(`export interface AdditionalOpts {
       customKey?: (generatedName: SWRKeyInterface) => SWRKeyInterface;
@@ -267,13 +274,6 @@ export class SWRVisitor extends ClientSideBaseVisitor<
         fieldValue: Variables[typeof fieldName]
       ) => query({ ...variables, [fieldName]: fieldValue } as Variables)
   }`)
-    }
-
-    // Add the function for auto-generation key for SWR
-    if (config.autogenSWRKey) {
-      codes.push(
-        `  const genKey = <V extends Record<string, unknown> = Record<string, unknown>>(name: string, object: V = {} as V): SWRKeyInterface => [name, ...Object.keys(object).sort().map(key => object[key])];`
-      )
     }
 
     // Add return statement for getSdkWithHooks function and close the function
