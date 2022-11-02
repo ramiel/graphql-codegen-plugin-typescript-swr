@@ -78,8 +78,6 @@
   "files": [
     "build/main",
     "build/module",
-    "!**/*.spec.*",
-    "!**/*.json",
     "LICENSE",
     "README.md"
   ]
